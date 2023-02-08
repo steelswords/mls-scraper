@@ -1,9 +1,22 @@
 use reqwest::{Response, Error, header};
+use scraper::{Html, Selector};
 
 fn parse_response(response : &Response)
 {
-
 }
+
+fn get_address(document: &Html) -> String {
+    let address_selector = Selector::parse("div.prop___overview").unwrap();
+    let address_list = document.select(&address_selector)
+        .next()
+        .unwrap()
+        .text()
+        .collect::<Vec<_>>();
+    let address: String = address_list.connect("\n");
+    address.trim().to_string()
+}
+
+
 // Some help from https://www.scrapingbee.com/blog/web-scraping-rust/
 fn main() {
     let url = "https://www.utahrealestate.com/1849266?st_id=182956172&actor=88145";
@@ -32,6 +45,7 @@ fn main() {
                 let category = category_span.text().collect::<Vec<_>>()[0];
                 println!("{}: {}", category.trim(), inner_text.trim());
             });
+            println!("Address: {}", get_address(&document));
         },
         Err(e) => eprint!("Got an error: {}", e)
     }

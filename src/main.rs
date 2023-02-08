@@ -17,13 +17,21 @@ fn main() {
     let response = client.get(url).send();
     match response {
         Ok(r) => {
-            print!("Got a response (code {}): ", &r.status());
+            //print!("Got a response (code {}): ", &r.status());
             let text: String = r.text().unwrap().clone();
-            println!("{}", text);
+            //println!("{}", text);
             let document = scraper::Html::parse_document(text.as_str());
             let mls_selector = scraper::Selector::parse("div.facts___item>div").unwrap();
+            let mls_interior_selector = scraper::Selector::parse("span").unwrap();
             let mls_list = document.select(&mls_selector).map(|x| x.inner_html());
-            mls_list.for_each(|item| println!("MLS: {}", item));
+            mls_list.for_each(|item| {
+                let inner_text = item.split("\n").collect::<Vec<&str>>()[2];
+                let category_fragment = scraper::Html::parse_fragment(item.as_str());
+
+                let category_span = category_fragment.select(&mls_interior_selector).next().unwrap();
+                let category = category_span.text().collect::<Vec<_>>()[0];
+                println!("{}: {}", category.trim(), inner_text.trim());
+            });
         },
         Err(e) => eprint!("Got an error: {}", e)
     }

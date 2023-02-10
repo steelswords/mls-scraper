@@ -26,7 +26,7 @@ async fn get_commute_time(gmaps: &GoogleMapsClient, house_address: String, work_
     println!("{:#?}", distance_matrix);
     */
     // TODO: Make this always be next Tuesday except for holidays
-    let departure_time = DepartureTime::At(NaiveDate::from_ymd(2023, 2, 9).and_hms(8, 30, 0));
+    let departure_time = DepartureTime::At(NaiveDate::from_ymd(2023, 2, 15).and_hms(8, 45, 0));
     let origin = Location::Address(house_address);
     let destination = Location::Address(work_address);
     /*
@@ -41,7 +41,12 @@ async fn get_commute_time(gmaps: &GoogleMapsClient, house_address: String, work_
             .with_travel_mode(TravelMode::Driving)
             .with_departure_time(departure_time)
             .execute().await?;
-    println!("Directions: {:#?}", directions);
+    //println!("Directions: {:#?}", directions);
+    let commute_time = directions.routes[0].legs[0].duration.text.clone();
+    let commute_time_in_traffic = directions.routes[0].legs[0].get_duration_in_traffic_text().unwrap();
+
+    println!("Commute time: {}\nTime in traffic: {}", commute_time, commute_time_in_traffic);
+
     Ok(())
 }
 

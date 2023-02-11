@@ -1083,6 +1083,7 @@ name = "mls_scraper"
 version = "0.1.0"
 dependencies = [
  "async-std",
+ "chrono",
  "dotenv",
  "futures",
  "google_maps",

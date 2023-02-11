@@ -84,13 +84,22 @@ fn get_address(document: &Html) -> String {
 // Some help from https://www.scrapingbee.com/blog/web-scraping-rust/
 #[tokio::main]
 async fn main() -> std::result::Result<(), Box<dyn Error>> {
+    // Get command line arguments
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        eprintln!("Usage: {} <URL of property to scan>", args[0]);
+        // TODO: My Rust game has to step it up.
+        return Ok(()); // TODO: Make this an Error instead
+    }
+    //let url = "https://www.utahrealestate.com/1849266?st_id=182956172&actor=88145";
+    let url = args[1].as_str();
+
     // Initialize the Google Maps API
     dotenv().ok();
     let gmaps_api_key: String = String::from(env::var("GOOGLE_MAPS_API_KEY")
                                              .expect("Edit .env to reflect your Google Maps API Key"));
     let gmaps_client = GoogleMapsClient::new(gmaps_api_key.as_str());
 
-    let url = "https://www.utahrealestate.com/1849266?st_id=182956172&actor=88145";
     let mut headers = header::HeaderMap::new();
     headers.insert(header::USER_AGENT, header::HeaderValue::from_static("rust/1.0"));
     let client = reqwest::Client::builder()

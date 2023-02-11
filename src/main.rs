@@ -3,9 +3,28 @@ use scraper::{Html, Selector};
 use google_maps::{GoogleMapsClient, prelude::*};
 use std::{error::Error, env};
 use dotenv::dotenv;
+use chrono::prelude::*;
 
 fn parse_response(response : &Response)
 {
+}
+
+// Returns the next Tuesday.
+// This is to get a representative day for commute times. We don't want Fridays,
+// because there is less traffic on those days on I-15, at least (YMMV).
+fn get_next_commute_day() -> NaiveDate {
+    let now = chrono::Local::today();
+    let day_offset = match now.weekday() {
+        Weekday::Mon => 1,
+        Weekday::Tue => 0,
+        Weekday::Wed => 6,
+        Weekday::Thu => 5,
+        Weekday::Fri => 4,
+        Weekday::Sat => 3,
+        Weekday::Sun => 2,
+    };
+    let this_tuesday = now + Duration::days(day_offset);
+    NaiveDate::from_ymd(this_tuesday.year(), this_tuesday.month(), this_tuesday.day())
 }
 
 async fn get_commute_time(gmaps: &GoogleMapsClient, house_address: String, work_address: String) -> Result<(), google_maps::directions::error::Error> {
@@ -26,7 +45,7 @@ async fn get_commute_time(gmaps: &GoogleMapsClient, house_address: String, work_
     println!("{:#?}", distance_matrix);
     */
     // TODO: Make this always be next Tuesday except for holidays
-    let departure_time = DepartureTime::At(NaiveDate::from_ymd(2023, 2, 15).and_hms(8, 45, 0));
+    let departure_time = DepartureTime::At(get_next_commute_day().and_hms(8, 45, 0));
     let origin = Location::Address(house_address);
     let destination = Location::Address(work_address);
     /*

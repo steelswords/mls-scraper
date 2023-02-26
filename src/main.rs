@@ -71,11 +71,13 @@ async fn get_commute_time(gmaps: &GoogleMapsClient, house_address: String, work_
 
 fn get_address(document: &Html) -> String {
     let address_selector = Selector::parse("div.prop___overview").unwrap();
-    let address_list = document.select(&address_selector)
+    let mut address_list = document.select(&address_selector)
         .next()
         .unwrap()
         .text()
+        .map(|line| line.trim())
         .collect::<Vec<_>>();
+    address_list.retain(|x| !x.is_empty());
     let address: String = address_list.join("\n");
     address.trim().to_string()
 }
@@ -125,7 +127,7 @@ async fn main() -> std::result::Result<(), Box<dyn Error>> {
     });
     let address = get_address(&document);
     let work_address = String::from("3401 Ashton Blvd, Lehi, UT 84043");
-    println!("Address: {}", &address);
+    println!("Address: {}\n", &address);
     get_commute_time(&gmaps_client, address, work_address).await?;
     Ok(())
 }

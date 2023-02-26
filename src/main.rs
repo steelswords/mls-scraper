@@ -16,7 +16,7 @@ fn get_next_commute_day() -> NaiveDate {
     let now = chrono::Local::today();
     let day_offset = match now.weekday() {
         Weekday::Mon => 1,
-        Weekday::Tue => 0,
+        Weekday::Tue => 7,
         Weekday::Wed => 6,
         Weekday::Thu => 5,
         Weekday::Fri => 4,
